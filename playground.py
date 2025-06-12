@@ -1,3 +1,4 @@
+import os
 from agno.agent import Agent
 from agno.models.groq import Groq
 from agno.playground import Playground, serve_playground_app
@@ -5,13 +6,16 @@ from agno.storage.sqlite import SqliteStorage
 from agno.tools.duckduckgo import DuckDuckGoTools
 from agno.tools.yfinance import YFinanceTools
 
-agent_storage: str = "tmp/agents.db"
+# Get configuration from environment variables
+agent_storage: str = os.getenv("AGENT_STORAGE", "tmp/agents.db")
+groq_api_key: str = os.getenv("GROQ_API_KEY", "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")
+port: int = int(os.getenv("PORT", "7777"))
 
 web_agent = Agent(
     name="William Cabrera",
     model=Groq(
         id="llama3-70b-8192",
-        api_key="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",
+        api_key=groq_api_key,
     ),
     tools=[DuckDuckGoTools()],
     instructions=["Always include sources"],
@@ -26,7 +30,7 @@ finance_agent = Agent(
     name="Finance Agent",
     model=Groq(
         id="llama3-70b-8192",
-        api_key="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",
+        api_key=groq_api_key,
     ),
     tools=[YFinanceTools(stock_price=True, analyst_recommendations=True, company_info=True, company_news=True)],
     instructions=["Always use tables to display data"],
@@ -40,4 +44,4 @@ finance_agent = Agent(
 app = Playground(agents=[web_agent, finance_agent]).get_app()
 
 if __name__ == "__main__":
-    serve_playground_app("playground:app", reload=True, port=7777)
+    serve_playground_app("playground:app", reload=False, port=port, host="0.0.0.0")
