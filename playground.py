@@ -9,7 +9,7 @@ from agno.tools.yfinance import YFinanceTools
 # Get configuration from environment variables
 agent_storage: str = os.getenv("AGENT_STORAGE", "tmp/agents.db")
 groq_api_key: str = os.getenv("GROQ_API_KEY", "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")
-port: int = int(os.getenv("PORT", "7777"))
+port: int = int(os.getenv("PORT", "8080"))  # Changed default to 8080 for Cloud Run
 
 web_agent = Agent(
     name="William Cabrera",

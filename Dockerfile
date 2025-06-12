@@ -19,8 +19,8 @@ COPY . .
 # Create tmp directory for database
 RUN mkdir -p tmp
 
-# Expose port
-EXPOSE 7777
+# Expose port (Cloud Run will set PORT env var)
+EXPOSE 8080
 
-# Run the application
-CMD ["python", "-m", "uvicorn", "playground:app", "--host", "0.0.0.0", "--port", "7777"]
+# Run the application - use PORT env var from Cloud Run
+CMD ["sh", "-c", "python -m uvicorn playground:app --host 0.0.0.0 --port ${PORT:-8080}"]
