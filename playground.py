@@ -1,15 +1,22 @@
 import os
+import logging
 from agno.agent import Agent
 from agno.models.groq import Groq
-from agno.playground import Playground, serve_playground_app
+from agno.playground import Playground
 from agno.storage.sqlite import SqliteStorage
 from agno.tools.duckduckgo import DuckDuckGoTools
 from agno.tools.yfinance import YFinanceTools
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Get configuration from environment variables
 agent_storage: str = os.getenv("AGENT_STORAGE", "tmp/agents.db")
 groq_api_key: str = os.getenv("GROQ_API_KEY", "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")
 port: int = int(os.getenv("PORT", "8080"))  # Changed default to 8080 for Cloud Run
+
+logger.info(f"Starting application on port {port}")
 
 web_agent = Agent(
     name="William Cabrera",
@@ -44,4 +51,6 @@ finance_agent = Agent(
 app = Playground(agents=[web_agent, finance_agent]).get_app()
 
 if __name__ == "__main__":
-    serve_playground_app("playground:app", reload=False, port=port, host="0.0.0.0")
+    import uvicorn
+    logger.info("Starting uvicorn server...")
+    uvicorn.run(app, host="0.0.0.0", port=port, log_level="info")

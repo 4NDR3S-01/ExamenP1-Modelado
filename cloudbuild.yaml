@@ -13,7 +13,7 @@ steps:
     args:
       - 'run'
       - 'deploy'
-      - 'agent-playground'
+      - 'examenp1-modelado'
       - '--image'
       - 'gcr.io/$PROJECT_ID/agent-playground:$COMMIT_SHA'
       - '--region'
@@ -27,6 +27,8 @@ steps:
       - '2Gi'
       - '--cpu'
       - '1'
+      - '--timeout'
+      - '900'
       - '--max-instances'
       - '10'
 

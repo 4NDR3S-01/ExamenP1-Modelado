@@ -22,5 +22,5 @@ RUN mkdir -p tmp
 # Expose port (Cloud Run will set PORT env var)
 EXPOSE 8080
 
-# Run the application - use PORT env var from Cloud Run
-CMD ["sh", "-c", "python -m uvicorn playground:app --host 0.0.0.0 --port ${PORT:-8080}"]
+# Run the application
+CMD ["python", "playground.py"]
