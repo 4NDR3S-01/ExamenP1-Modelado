@@ -44,7 +44,7 @@ export function AgentSelector() {
   const handleOnValueChange = (value: string) => {
     const newAgent = value === agentId ? '' : value
     const selectedAgent = agents.find((agent) => agent.value === newAgent)
-    setSelectedModel(selectedAgent?.model.provider || '')
+    setSelectedModel(selectedAgent?.model.provider ?? '')
     setHasStorage(!!selectedAgent?.storage)
     setAgentId(newAgent)
     setMessages([])
@@ -56,7 +56,7 @@ export function AgentSelector() {
 
   return (
     <Select
-      value={agentId || ''}
+      value={agentId ?? ''}
       onValueChange={(value) => handleOnValueChange(value)}
     >
       <SelectTrigger className="h-9 w-full rounded-xl border border-primary/15 bg-primaryAccent text-xs font-medium uppercase">
