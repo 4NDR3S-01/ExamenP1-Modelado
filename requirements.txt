@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+agno
+yfinance
+duckduckgo-search
+sqlite3
