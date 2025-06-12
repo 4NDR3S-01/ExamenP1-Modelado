@@ -177,22 +177,27 @@ const Img = ({ src, alt }: ImgProps) => {
 
   if (!src) return null
 
+  // Forzar src a string para evitar errores de tipo
+  const srcString = typeof src === 'string' ? src : ''
+
   return (
     <div className="w-full max-w-xl">
       {error ? (
         <div className="flex h-40 flex-col items-center justify-center gap-2 rounded-md bg-secondary/50 text-muted">
           <Paragraph className="text-primary">Image unavailable</Paragraph>
-          <Link
-            href={src}
-            target="_blank"
-            className="max-w-md truncate underline"
-          >
-            {src}
-          </Link>
+          {srcString && (
+            <Link
+              href={srcString}
+              target="_blank"
+              className="max-w-md truncate underline"
+            >
+              {srcString}
+            </Link>
+          )}
         </div>
       ) : (
         <Image
-          src={src}
+          src={srcString}
           width={1280}
           height={720}
           alt={alt ?? 'Rendered image'}
