@@ -22,5 +22,5 @@ RUN mkdir -p tmp
 # Expose port (Cloud Run will set PORT env var)
 EXPOSE 8080
 
-# Run the application
+# Run the application directly with Python
 CMD ["python", "playground.py"]

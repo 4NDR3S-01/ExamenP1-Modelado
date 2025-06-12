@@ -50,6 +50,16 @@ finance_agent = Agent(
 
 app = Playground(agents=[web_agent, finance_agent]).get_app()
 
+# Add health check endpoint
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy", "port": port}
+
+# Add root endpoint
+@app.get("/")
+async def root():
+    return {"message": "Agent Playground is running", "port": port}
+
 if __name__ == "__main__":
     import uvicorn
     logger.info("Starting uvicorn server...")

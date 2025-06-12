@@ -31,6 +31,9 @@ steps:
       - '900'
       - '--max-instances'
       - '10'
+      - '--min-instances'
+      - '0'
+      - '--startup-cpu-boost'
 
 images:
   - 'gcr.io/$PROJECT_ID/agent-playground:$COMMIT_SHA'
