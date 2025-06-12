@@ -26,14 +26,16 @@ steps:
       - '--memory'
       - '2Gi'
       - '--cpu'
-      - '1'
+      - '2'
       - '--timeout'
-      - '900'
+      - '3600'
       - '--max-instances'
       - '10'
       - '--min-instances'
       - '0'
       - '--startup-cpu-boost'
+      - '--set-env-vars'
+      - 'PORT=8080,PYTHONUNBUFFERED=1'
 
 images:
   - 'gcr.io/$PROJECT_ID/agent-playground:$COMMIT_SHA'

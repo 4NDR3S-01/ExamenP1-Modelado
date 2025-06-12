@@ -7,6 +7,7 @@ WORKDIR /app
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     gcc \
+    sqlite3 \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install Python dependencies
@@ -16,11 +17,19 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Create tmp directory for database
-RUN mkdir -p tmp
+# Create tmp directory for database and set permissions
+RUN mkdir -p tmp && chmod 755 tmp
 
-# Expose port (Cloud Run will set PORT env var)
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV PORT=8080
+
+# Expose port
 EXPOSE 8080
 
-# Run the application directly with Python
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=60s --retries=3 \
+    CMD python -c "import requests; requests.get('http://localhost:8080/health')" || exit 1
+
+# Run the application
 CMD ["python", "playground.py"]
