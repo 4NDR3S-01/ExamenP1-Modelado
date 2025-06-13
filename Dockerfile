@@ -35,6 +35,10 @@ RUN pnpm install && pnpm build
 
 WORKDIR /app
 
+# Copy start script and set permissions
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
+
 # Make start script executable, create tmp directory, set permissions, and create user
 RUN mkdir -p tmp && \
     chmod 755 tmp && \
@@ -51,10 +55,6 @@ ENV PYTHONPATH=/app
 # Expose ports
 EXPOSE 7777
 EXPOSE 3000
-
-# Copy start script and set permissions
-COPY start.sh /app/start.sh
-RUN chmod +x /app/start.sh
 
 # Health check using python
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
