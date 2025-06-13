@@ -8,7 +8,8 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 import os
 
-agent_storage: str = "tmp/agents.db"
+# Usar ruta absoluta para la base de datos
+agent_storage: str = "/app/tmp/agents.db"
 
 
 web_agent = Agent(
@@ -57,13 +58,17 @@ async def health_check():
     )
 
 
-# Endpoint temporal para depuración de la base de datos
+# Endpoint temporal para depuración de la base de datos con logs detallados
 @app.get("/debug/db")
 async def debug_db():
-    db_path = "tmp/agents.db"
-    exists = os.path.exists(db_path)
-    size = os.path.getsize(db_path) if exists else 0
-    return JSONResponse({"db_exists": exists, "db_size": size})
+    import traceback
+    db_path = "/app/tmp/agents.db"
+    try:
+        exists = os.path.exists(db_path)
+        size = os.path.getsize(db_path) if exists else 0
+        return JSONResponse({"db_exists": exists, "db_size": size, "cwd": os.getcwd()})
+    except Exception as e:
+        return JSONResponse({"error": str(e), "trace": traceback.format_exc(), "cwd": os.getcwd()}, status_code=500)
 
 
 if __name__ == "__main__":
