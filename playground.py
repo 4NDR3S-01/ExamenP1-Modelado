@@ -57,6 +57,15 @@ async def health_check():
     )
 
 
+# Endpoint temporal para depuración de la base de datos
+@app.get("/debug/db")
+async def debug_db():
+    db_path = "tmp/agents.db"
+    exists = os.path.exists(db_path)
+    size = os.path.getsize(db_path) if exists else 0
+    return JSONResponse({"db_exists": exists, "db_size": size})
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 7777))
     serve_playground_app("playground:app", reload=False, port=port, host="0.0.0.0")
