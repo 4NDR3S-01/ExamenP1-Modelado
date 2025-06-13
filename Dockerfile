@@ -45,13 +45,13 @@ RUN mkdir -p tmp && \
     useradd --create-home --shell /bin/bash app && \
     chown -R app:app /app
 
-USER app
-
-# Instalar Nginx
+# Instalar Nginx antes de cambiar de usuario
 RUN apt-get update && apt-get install -y nginx && rm -rf /var/lib/apt/lists/*
 
 # Copiar configuración de Nginx
 COPY nginx.conf /app/nginx.conf
+
+USER app
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
