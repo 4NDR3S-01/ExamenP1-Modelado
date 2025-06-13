@@ -1,5 +1,5 @@
 # Use Python 3.11 slim image
-FROM python:3.11-slim
+FROM python:3.11-slim AS backend
 
 # Set working directory
 WORKDIR /app
@@ -12,15 +12,28 @@ RUN apt-get update && apt-get install -y \
     gcc \
     pkg-config \
     sqlite3 \
+    nodejs \
+    npm \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and install Python dependencies
+# Install Node.js 20.x (more stable for Next.js)
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs && \
+    npm install -g pnpm
+
+# Install backend dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
+# Copy backend and frontend
 COPY . .
+
+# Install frontend dependencies
+WORKDIR /app/agent-ui
+RUN pnpm install && pnpm build
+
+WORKDIR /app
 
 # Make start script executable, create tmp directory, set permissions, and create user
 RUN mkdir -p tmp && \
@@ -35,12 +48,17 @@ ENV PYTHONUNBUFFERED=1
 ENV PORT=7777
 ENV PYTHONPATH=/app
 
-# Expose port
+# Expose ports
 EXPOSE 7777
+EXPOSE 3000
+
+# Copy start script and set permissions
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
 
 # Health check using python
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:7777/health')" || exit 1
 
 # Run the application
-CMD ["uvicorn", "playground:app", "--host", "0.0.0.0", "--port", "7777", "--log-level", "info"]
+CMD ["/app/start.sh"]

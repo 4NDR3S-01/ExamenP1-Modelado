@@ -4,7 +4,7 @@
 set -e
 
 echo "🚀 Starting Agent Playground..."
-echo "Port: ${PORT:-7777}"
+echo "Ports: Backend ${PORT:-7777}, Frontend 3000"
 echo "Python version: $(python --version)"
 
 # Check if tmp directory exists and create if not
@@ -28,12 +28,20 @@ else:
     print('Database already exists')
 "
 
-# Start the application
-echo "🌟 Starting Uvicorn server on port ${PORT:-7777}..."
-exec python -m uvicorn playground:app \
+# Start the backend application
+echo "🌟 Starting backend Uvicorn server on port ${PORT:-7777}..."
+python -m uvicorn playground:app \
     --host 0.0.0.0 \
     --port ${PORT:-7777} \
     --log-level info \
     --access-log \
     --timeout-keep-alive 5 \
-    --timeout-graceful-shutdown 30
+    --timeout-graceful-shutdown 30 &
+
+# Navigate to the frontend directory and start the frontend application
+echo "▶️ Starting frontend Next.js application on port 3000..."
+cd /app/agent-ui
+pnpm start --port 3000 &
+
+# Wait for all background processes to complete
+wait
