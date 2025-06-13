@@ -23,8 +23,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
 COPY . .
 
 # Make start script executable, create tmp directory, set permissions, and create user
-RUN chmod +x start.sh && \
-    mkdir -p tmp && \
+RUN mkdir -p tmp && \
     chmod 755 tmp && \
     useradd --create-home --shell /bin/bash app && \
     chown -R app:app /app
@@ -44,4 +43,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:7777/health')" || exit 1
 
 # Run the application
-CMD ["./start.sh"]
+CMD ["uvicorn", "playground:app", "--host", "0.0.0.0", "--port", "7777", "--log-level", "info"]
