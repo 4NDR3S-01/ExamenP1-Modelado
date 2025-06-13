@@ -1,11 +1,20 @@
 steps:
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/agent-playground:$COMMIT_SHA', '.']
+    args: 
+      - 'build'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/agent-playground:$COMMIT_SHA'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/agent-playground:latest'
+      - '.'
   
-  # Push the container image to Container Registry
+  # Push the container image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/agent-playground:$COMMIT_SHA']
+    args: 
+      - 'push'
+      - '--all-tags'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/agent-playground'
   
   # Deploy container image to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -13,32 +22,40 @@ steps:
     args:
       - 'run'
       - 'deploy'
-      - 'examenp1-modelado'
+      - '${_SERVICE_NAME}'
       - '--image'
-      - 'gcr.io/$PROJECT_ID/agent-playground:$COMMIT_SHA'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/agent-playground:$COMMIT_SHA'
       - '--region'
-      - 'us-central1'
+      - '${_REGION}'
       - '--platform'
       - 'managed'
       - '--allow-unauthenticated'
       - '--port'
-      - '8080'
+      - '7777'
       - '--memory'
-      - '4Gi'
+      - '2Gi'
       - '--cpu'
-      - '2'
+      - '1'
       - '--timeout'
-      - '900'
+      - '300'
       - '--max-instances'
       - '10'
       - '--min-instances'
       - '0'
       - '--concurrency'
-      - '10'
-      - '--cpu-throttling'
-      - '--no-cpu-boost'
+      - '80'
       - '--set-env-vars'
-      - 'PORT=8080,PYTHONUNBUFFERED=1'
+      - 'PORT=7777,PYTHONUNBUFFERED=1'
+
+# Substitution variables with defaults
+substitutions:
+  _REGION: 'us-central1'
+  _REPOSITORY: 'agent-playground-repo'
+  _SERVICE_NAME: 'examenp1-modelado'
 
 images:
-  - 'gcr.io/$PROJECT_ID/agent-playground:$COMMIT_SHA'
+  - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/agent-playground:$COMMIT_SHA'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: 'E2_HIGHCPU_8'
