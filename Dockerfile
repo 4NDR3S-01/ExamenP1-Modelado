@@ -47,18 +47,23 @@ RUN mkdir -p tmp && \
 
 USER app
 
+# Instalar Nginx
+RUN apt-get update && apt-get install -y nginx && rm -rf /var/lib/apt/lists/*
+
+# Copiar configuración de Nginx
+COPY nginx.conf /app/nginx.conf
+
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 ENV PORT=7777
 ENV PYTHONPATH=/app
 
 # Expose ports
-EXPOSE 7777
 EXPOSE 3000
 
 # Health check using python
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:7777/health')" || exit 1
+    CMD curl -f http://localhost:3000/ || exit 1
 
 # Run the application
 CMD ["/app/start.sh"]

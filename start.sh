@@ -28,6 +28,9 @@ else:
     print('Database already exists')
 "
 
+# Iniciar Nginx en background
+nginx -c /app/nginx.conf &
+
 # Start the backend application
 echo "🌟 Starting backend Uvicorn server on port ${PORT:-7777}..."
 python -m uvicorn playground:app \
