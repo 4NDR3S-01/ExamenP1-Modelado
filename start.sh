@@ -14,6 +14,13 @@ if [ ! -d "tmp" ]; then
     chmod 755 tmp
 fi
 
+# Asegurar que el directorio tmp existe y tiene permisos antes de iniciar el backend
+if [ ! -d "/app/tmp" ]; then
+    echo "📁 Creando directorio /app/tmp..."
+    mkdir -p /app/tmp
+    chmod 777 /app/tmp
+fi
+
 # Initialize database if needed
 echo "🗄️ Initializing database..."
 python -c "
