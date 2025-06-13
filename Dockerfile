@@ -22,8 +22,9 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Copy application code
 COPY . .
 
-# Create tmp directory for database, set permissions, and create user
-RUN mkdir -p tmp && \
+# Make start script executable, create tmp directory, set permissions, and create user
+RUN chmod +x start.sh && \
+    mkdir -p tmp && \
     chmod 755 tmp && \
     useradd --create-home --shell /bin/bash app && \
     chown -R app:app /app
@@ -38,9 +39,9 @@ ENV PYTHONPATH=/app
 # Expose port
 EXPOSE 7777
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:7777/health || exit 1
+# Health check using python
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:7777/health')" || exit 1
 
 # Run the application
-CMD ["python", "-m", "uvicorn", "playground:app", "--host", "0.0.0.0", "--port", "7777", "--log-level", "info"]
+CMD ["./start.sh"]
