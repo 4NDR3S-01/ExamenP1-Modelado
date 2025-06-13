@@ -1,20 +1,24 @@
 import os
-import logging
 import sys
-from agno.agent import Agent
-from agno.models.groq import Groq
-from agno.playground import Playground
-from agno.storage.sqlite import SqliteStorage
-from agno.tools.duckduckgo import DuckDuckGoTools
-from agno.tools.yfinance import YFinanceTools
+import logging
 
-# Configure logging
+# Configure logging first
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[logging.StreamHandler(sys.stdout)]
 )
 logger = logging.getLogger(__name__)
+
+logger.info("Starting script...")
+
+from agno.agent import Agent
+from agno.models.groq import Groq
+from agno.playground import Playground
+from agno.storage.sqlite import SqliteStorage
+# Temporary: comment out problematic tools
+# from agno.tools.duckduckgo import DuckDuckGoTools
+# from agno.tools.yfinance import YFinanceTools
 
 # Get configuration from environment variables
 agent_storage: str = os.getenv("AGENT_STORAGE", "tmp/agents.db")
@@ -28,10 +32,6 @@ logger.info(f"Agent storage: {agent_storage}")
 os.makedirs("tmp", exist_ok=True)
 logger.info("Created tmp directory")
 
-# Ensure the tmp directory exists
-os.makedirs("tmp", exist_ok=True)
-logger.info("Created tmp directory")
-
 logger.info("Creating web agent...")
 web_agent = Agent(
     name="William Cabrera",
@@ -39,7 +39,7 @@ web_agent = Agent(
         id="llama3-70b-8192",
         api_key=groq_api_key,
     ),
-    tools=[DuckDuckGoTools()],
+    tools=[],  # Empty tools for now
     instructions=["Always include sources"],
     storage=SqliteStorage(table_name="web_agent", db_file=agent_storage),
     add_datetime_to_instructions=True,
@@ -47,6 +47,7 @@ web_agent = Agent(
     num_history_responses=5,
     markdown=True,
 )
+logger.info("Web agent created successfully")
 
 logger.info("Creating finance agent...")
 finance_agent = Agent(
@@ -55,7 +56,7 @@ finance_agent = Agent(
         id="llama3-70b-8192",
         api_key=groq_api_key,
     ),
-    tools=[YFinanceTools(stock_price=True, analyst_recommendations=True, company_info=True, company_news=True)],
+    tools=[],  # Empty tools for now
     instructions=["Always use tables to display data"],
     storage=SqliteStorage(table_name="finance_agent", db_file=agent_storage),
     add_datetime_to_instructions=True,
@@ -63,32 +64,19 @@ finance_agent = Agent(
     num_history_responses=5,
     markdown=True,
 )
+logger.info("Finance agent created successfully")
 
 logger.info("Creating playground app...")
 app = Playground(agents=[web_agent, finance_agent]).get_app()
 logger.info("Playground app created successfully")
 
-# Add health check endpoint
-@app.get("/health")
-async def health_check():
-    return {"status": "healthy", "port": port}
-
-# Add root endpoint
-@app.get("/")
-async def root():
-    return {"message": "Agent Playground is running", "port": port}
-
 if __name__ == "__main__":
     import uvicorn
-    try:
-        logger.info("Starting uvicorn server...")
-        uvicorn.run(
-            app, 
-            host="0.0.0.0", 
-            port=port, 
-            log_level="info",
-            access_log=True
-        )
-    except Exception as e:
-        logger.error(f"Failed to start server: {e}")
-        sys.exit(1)
+    logger.info("Starting uvicorn server...")
+    uvicorn.run(
+        app, 
+        host="0.0.0.0", 
+        port=port, 
+        log_level="info",
+        access_log=True
+    )
